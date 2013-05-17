@@ -1,0 +1,63 @@
+g<html>
+<head>
+  <title>scam</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
+  <script type="text/javascript" src="../wat-js/wat.js"></script>
+  <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
+  <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
+  <style>
+    .block { border: 1px solid gray; margin: 0.1em; display: inline-table; }
+    .line { border: 1px solid gray; margin: 0.1em; display: table-row; }
+    .text { display: inline; }
+  </style>
+</head>
+<body>
+<h1><a href="https://github.com/manuel/scam">scam</a></h1>
+<script type="text/javascript">
+var code = 
+    ["begin",
+     ["define-macro", ["text", "str"],
+      ["list", "make-text", ["list", "string", "str"]]],
+     ["define", ["make-text", "str"],
+      ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
+       ["#", "setAttribute", "div", ["string", "class"], ["string", "text"]],
+       ["#", "appendChild", "div", ["#", "createTextNode", document, "str"]],
+       "div"]],
+     ["define", ["block", "#rest", "elts"],
+      ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
+       ["#", "setAttribute", "div", ["string", "class"], ["string", "block"]],
+       ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"],
+       "div"]],
+     ["define", ["line", "#rest", "elts"],
+      ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
+       ["#", "setAttribute", "div", ["string", "class"], ["string", "line"]],
+       ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"],
+       "div"]],
+
+     ["define", "SAMPLE",
+      ["block",
+       ["line",
+        ["text", "foo"],
+        ["block",
+         ["line", ["text", "X"]],
+         ["line", ["text", "aaaaaaaaaaaaY"]]],
+        ["text", "bar"],
+        ["text", "foo"],
+        ["block", ["line", ["text", "aaaaaaaaaaX"]], ["line", ["text", "Y"]]],
+        ["text", "bar"]],
+       ["line",
+        ["text", "fooaaaaaaaaaaaaa"],
+        ["block",
+         ["line", ["text", "X"]],
+         ["line", ["text", "Y"]]],
+        ["text", "bar"],
+        ["text", "foo"],
+        ["block", ["line", ["text", "X"]], ["line", ["text", "Y"]]],
+        ["text", "bar"]]]],
+     ["#", "appendChild", [".", "body", document], "SAMPLE"]
+    ];
+console.log(new wat.VM().run(code));
+$(".text,.line").sortable({"connectWith":".line"});
+</script>
+</body>
+</html>
