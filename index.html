@@ -1,8 +1,9 @@
-g<html>
+<html>
 <head>
   <title>scam</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
   <script type="text/javascript" src="../wat-js/wat.js"></script>
+  <script type="text/javascript" src="../wat-js/wat-basics.js"></script>
   <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
   <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
   <style>
@@ -16,6 +17,7 @@ g<html>
 <script type="text/javascript">
 var code = 
     ["begin",
+     wat_basics.main,
      ["define-macro", ["text", "str"],
       ["list", "make-text", ["list", "string", "str"]]],
      ["define", ["make-text", "str"],
