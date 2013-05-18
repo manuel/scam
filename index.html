@@ -4,12 +4,17 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
   <script type="text/javascript" src="../wat-js/wat.js"></script>
   <script type="text/javascript" src="../wat-js/wat-basics.js"></script>
-  <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
-  <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
   <style>
-    .block { border: 1px solid gray; margin: 0.1em; display: inline-table; }
-    .line { border: 1px solid gray; margin: 0.1em; display: table-row; }
-    .text { display: inline; }
+    html { font-family: sans; }
+    .box {
+        margin: 0 .2em .2em; padding: 0 .2em; display: inline-table;
+        border-bottom: 1px solid gray;
+        border-left: 0.5em solid gray; 
+        border-radius: 1em;
+    }
+    .line { display: table-row; margin-bottom: 1em; }
+    .text { display: inline; margin: 0 .25em;}
+    .h { font-weight: bold; }
   </style>
 </head>
 <body>
@@ -25,41 +30,47 @@ var code =
        ["#", "setAttribute", "div", ["string", "class"], ["string", "text"]],
        ["#", "appendChild", "div", ["#", "createTextNode", document, "str"]],
        "div"]],
-     ["define", ["block", "#rest", "elts"],
+     ["define-macro", ["h", "str"],
+      ["list", "make-h", ["list", "string", "str"]]],
+     ["define", ["make-h", "str"],
       ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
-       ["#", "setAttribute", "div", ["string", "class"], ["string", "block"]],
+       ["#", "setAttribute", "div", ["string", "class"], ["string", "h"]],
+       ["#", "appendChild", "div", ["#", "createTextNode", document, "str"]],
+       "div"]],
+     ["define", ["box", "#rest", "elts"],
+      ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
+       ["#", "setAttribute", "div", ["string", "class"], ["string", "box"]],
        ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"],
        "div"]],
      ["define", ["line", "#rest", "elts"],
       ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
        ["#", "setAttribute", "div", ["string", "class"], ["string", "line"]],
-       ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"],
+       ["if", ["nil?", "elts"],
+        ["js-set-element", "div", ["string", "innerHTML"], ["string", "&nbsp;"]],
+        ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"]],
        "div"]],
 
-     ["define", "SAMPLE",
-      ["block",
+     ["define", "LET-SAMPLE",
+      ["box",
        ["line",
-        ["text", "foo"],
-        ["block",
-         ["line", ["text", "X"]],
-         ["line", ["text", "aaaaaaaaaaaaY"]]],
-        ["text", "bar"],
-        ["text", "foo"],
-        ["block", ["line", ["text", "aaaaaaaaaaX"]], ["line", ["text", "Y"]]],
-        ["text", "bar"]],
+        ["box",
+         ["line",
+          ["text", "let"],
+          ["box", ["line",
+                   ["box", ["line", ["text", "x"], ["text", "1"]]],
+                   ["box", ["line", ["text", "y"], ["text", "2"]]]]]],
+         ["line",
+          ["box", ["line", ["text", "+"], ["text", "x"], ["text", "y"]]]]]],
        ["line",
-        ["text", "fooaaaaaaaaaaaaa"],
-        ["block",
-         ["line", ["text", "X"]],
-         ["line", ["text", "Y"]]],
-        ["text", "bar"],
-        ["text", "foo"],
-        ["block", ["line", ["text", "X"]], ["line", ["text", "Y"]]],
-        ["text", "bar"]]]],
-     ["#", "appendChild", [".", "body", document], "SAMPLE"]
+        ["box",
+         ["line",
+          ["h", "Hello world!"]],
+         ["line",
+          ["text", "This is a sample document."]]]]]],
+     ["#", "appendChild", [".", "body", document], "LET-SAMPLE"],
+
     ];
 console.log(new wat.VM().run(code));
-$(".text,.line").sortable({"connectWith":".line"});
 </script>
 </body>
 </html>
