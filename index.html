@@ -4,33 +4,57 @@
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/> 
   <script type="text/javascript" src="../wat-js/wat.js"></script>
   <script type="text/javascript" src="../wat-js/wat-basics.js"></script>
+  <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
   <style>
-    html { font-family: sans; }
+    html { font-family: sans; font-size: 18pt; }
     .box {
+        background-color: #fff;
         margin: 0em .25em; padding: 0 .25em; display: inline-table;
-        border-left: 2px solid #ccc;
-        border-right: 2px solid #ccc;
-        border-radius: 0.5em;
+        border-left: .125em solid #ccc;
+        border-right: .125em solid #ccc;
+        border-radius: .5em;
     }
-    .line { padding-left: 0.5em; }
-    .firstLine { margin-left: 0; }
+    .line { }
     .text { display: inline; margin: 0 .25em;}
     .h { display: inline; font-weight: bold; margin: 0 .25em;}
-
+    .selection { border-color: black; }
   </style>
 </head>
 <body>
-<h1><a href="https://github.com/manuel/scam">scam</a></h1>
+<!--<div style="float: right; font-variant: small-caps; font-family: monospace;"><a href="https://github.com/manuel/scam">Scam</a></div>-->
 <script type="text/javascript">
 var code = 
     ["begin",
      wat_basics.main,
+
+     ["define", ["let-sample"],
+        ["box",
+         ["line",
+          ["text", "let"],
+          ["box",
+           ["line",
+            ["box", ["line", ["text", "x"], ["text", "1"]]]],
+           ["line",
+            ["box", ["line", ["text", "y"], ["text", "2"]]]]]],
+         ["line",
+          ["box", ["line", ["text", "display"], ["text", "\"foo\""]]]],
+         ["line",
+          ["box", ["line", ["text", "+"], ["text", "x"], ["text", "y"]]]]]],
+
+     ["define", "$", ["js-wrap", $]],
      ["define-macro", ["text", "str"],
       ["list", "make-text", ["list", "string", "str"]]],
      ["define", ["make-text", "str"],
       ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
        ["#", "setAttribute", "div", ["string", "class"], ["string", "text"]],
+       ["#", "setAttribute", "div", ["string", "contenteditable"], true],
+       ["#", "focus", ["$", "div"],
+        ["js-callback", ["lambda", ["evt", "#rest", "#ignore"],
+                         ["deselect-all"],
+                         ["set-selection!", ["list", "div"]]]]],
        ["#", "appendChild", "div", ["#", "createTextNode", document, "str"]],
+       ["#", "on", ["$", "div"], ["string", "keypress"],
+        ["js-callback", ["lambda", "#ignore", ["#", "log", console, ["string", "foo"]]]]],
        "div"]],
      ["define-macro", ["h", "str"],
       ["list", "make-h", ["list", "string", "str"]]],
@@ -39,14 +63,27 @@ var code =
        ["#", "setAttribute", "div", ["string", "class"], ["string", "h"]],
        ["#", "appendChild", "div", ["#", "createTextNode", document, "str"]],
        "div"]],
-     ["define", ["box", "first", "#rest", "elts"],
+     ["define", "*selection*", []],
+     ["define", "*env*", ["get-current-environment"]],
+     ["define", ["set-selection!", "new-sel"],
+      ["set!", "*env*", "*selection*", "new-sel"]],
+     ["define", ["deselect-all"],
+      ["map-list",
+       ["lambda", ["sel"],
+        ["#", "removeClass", ["$", "sel"], ["string", "selection"]]],
+       "*selection*"]],
+     ["define", ["box", "#rest", "elts"],
       ["let", [["div", ["#", "createElement", document, ["string", "div"]]]],
        ["#", "setAttribute", "div", ["string", "class"], ["string", "box"]],
-       ["#", "setAttribute", "first", ["string", "class"],
-        ["+",
-         ["#", "getAttribute", "first", ["string", "className"]],
-         ["string", " firstLine"]]],
-       ["#", "appendChild", "div", "first"],
+       ["#", "click", ["$", "div"],
+        ["js-callback", ["lambda", ["evt", "#rest", "#ignore"],
+                         ["if", ["===", [".", "target", "evt"], "div"],
+                          ["begin",
+                           ["deselect-all"],
+                           ["#", "blur", ["$", ["string", ".text"]]],
+                           ["set-selection!", ["list", "div"]],
+                           ["#", "addClass", ["$", "div"], ["string", "selection"]]],
+                          null]]]],
        ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"],
        "div"]],
      ["define", ["line", "#rest", "elts"],
@@ -57,36 +94,7 @@ var code =
         ["map-list", ["lambda", ["elt"], ["#", "appendChild", "div", "elt"]], "elts"]],
        "div"]],
 
-     ["define", "LET-SAMPLE",
-      ["box",
-       ["line",
-        ["box",
-         ["line",
-          ["text", "let"],
-          ["box", ["line",
-                   ["box", ["line", ["text", "x"], ["text", "1"]]],
-                   ["box", ["line", ["text", "y"], ["text", "2"]]]]]],
-         ["line",
-          ["box", ["line", ["text", "+"], ["text", "x"], ["text", "y"]]]]]],
-       ["line",
-        ["box",
-         ["line",
-          ["h", "Hello world!"]],
-         ["line",
-          ["box", ["line", ["text", "Iteratee IO is a style of incremental input processing with precise resource control. The style encourages building input processors from a user-extensible set of primitives by chaining, layering, pairing and other modes of compositions. The programmer is still able, where needed, to precisely control look-ahead, the allocation of buffers, file descriptors and other resources."]]],
-          ["box", ["line", ["text", "This is a sample document."]]],
-          ["text", "This is a sample document."],
-          ["line", ["box", ["line", ["text", "This is a sample document."]]]],
-          ["line", ["box", ["line", ["text", "This is a sample "]]]],
-          ["line", ["box",
-                    ["line", ["h", "This is a sample document."]],
-                    ["line", ["box", ["line", ["text", "The proper implementation of undelimited continuations is surprisingly tricky. In particular, the Cont monad in Haskell's monad transformer library has a couple of imperfections."]]]],
-                    ["line", ["box", ["line", ["text", "Recall that monad is a technique of embedding an impure, object language, into a pure functional (meta)language. For an object language with control effects, the well-known embedding technique is continuation-passing style (CPS) -- which is what all our monads implement. "]]]],
-                    ["line", ["box", ["line", ["text", "This is a sample "]]]],
-                    ["line", ["box", ["line", ["text", "This is a sample "]]]],
-                    ["line", ["box", ["line", ["text", "This is a sample "]]]],
-                    ["line", ["box", ["line", ["text", "This is a sample "]]]]]]]]]]],
-     ["#", "appendChild", [".", "body", document], "LET-SAMPLE"],
+     ["#", "appendChild", [".", "body", document], ["let-sample"]],
 
     ];
 console.log(new wat.VM().run(code));
